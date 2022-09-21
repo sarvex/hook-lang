@@ -18,14 +18,14 @@
 #define HOME_VAR "HOOK_HOME"
 
 #ifdef _WIN32
-#define FILE_INFIX "\\lib\\"
-#define FILE_EXT   ".dll"
+#define FILE_INFIX  "\\lib\\"
+#define FILE_SUFFIX "mod.dll"
 #else
-#define FILE_INFIX "/lib/lib"
+#define FILE_INFIX  "/lib/lib"
 #ifdef __APPLE__
-#define FILE_EXT   ".dylib"
+#define FILE_SUFFIX "mod.dylib"
 #else
-#define FILE_EXT   ".so"
+#define FILE_SUFFIX "mod.so"
 #endif
 #endif
 
@@ -80,7 +80,7 @@ static inline int32_t load_native_module(hk_vm_t *vm, hk_string_t *name)
   hk_string_t *file = hk_string_from_chars(-1, get_home_dir());
   hk_string_inplace_concat_chars(file, -1, FILE_INFIX);
   hk_string_inplace_concat(file, name);
-  hk_string_inplace_concat_chars(file, -1, FILE_EXT);
+  hk_string_inplace_concat_chars(file, -1, FILE_SUFFIX);
 #ifdef _WIN32
   HINSTANCE handle = LoadLibrary(file->chars);
 #else

@@ -19,9 +19,11 @@ if(APPLE)
   link_directories(/usr/local/opt/mysql-client/lib)
   include_directories(/opt/homebrew/opt/mysql-client/include)
   link_directories(/opt/homebrew/opt/mysql-client/lib)
+  include_directories(/opt/homebrew/opt/rocksdb/include)
+  link_directories(/opt/homebrew/opt/rocksdb/lib)
 endif()
 
-add_library(sqlite SHARED
+add_library(sqlitemod SHARED
   sqlite.c
   deps/sqlite3.c
   ../src/hk_array.c
@@ -42,7 +44,7 @@ add_library(sqlite SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(url SHARED
+add_library(urlmod SHARED
   url.c
   ../src/hk_array.c
   ../src/hk_builtin.c
@@ -62,7 +64,7 @@ add_library(url SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(redis SHARED
+add_library(redismod SHARED
   redis.c
   ../src/hk_array.c
   ../src/hk_builtin.c
@@ -82,7 +84,7 @@ add_library(redis SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(hashing SHARED
+add_library(hashingmod SHARED
   hashing.c
   deps/ripemd160.c
   deps/sha2.c
@@ -104,7 +106,7 @@ add_library(hashing SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(encoding SHARED
+add_library(encodingmod SHARED
   encoding.c
   deps/base32.c
   deps/base58.c
@@ -127,7 +129,7 @@ add_library(encoding SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(secp256r1 SHARED
+add_library(secp256r1mod SHARED
   secp256r1.c
   deps/ecc.c
   ../src/hk_array.c
@@ -148,7 +150,7 @@ add_library(secp256r1 SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
-add_library(mysql SHARED
+add_library(mysqlmod SHARED
   mysql.c
   ../src/hk_array.c
   ../src/hk_builtin.c
@@ -168,12 +170,33 @@ add_library(mysql SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
+add_library(rocksdbmod SHARED
+  rocksdb.c
+  ../src/hk_array.c
+  ../src/hk_builtin.c
+  ../src/hk_callable.c
+  ../src/hk_chunk.c
+  ../src/hk_utils.c
+  ../src/hk_error.c
+  ../src/hk_iterable.c
+  ../src/hk_iterator.c
+  ../src/hk_memory.c
+  ../src/hk_module.c
+  ../src/hk_range.c
+  ../src/hk_string_map.c
+  ../src/hk_string.c
+  ../src/hk_struct.c
+  ../src/hk_userdata.c
+  ../src/hk_value.c
+  ../src/hk_vm.c)
+
 if(MSVC)
-  target_link_libraries(url PRIVATE CURL::libcurl)
-  target_link_libraries(mysql PRIVATE ${MYSQL_LIBRARIES})
+  target_link_libraries(urlmod PRIVATE CURL::libcurl)
+  target_link_libraries(mysqlmod PRIVATE ${MYSQL_LIBRARIES})
 else()
-  target_link_libraries(url curl)
-  target_link_libraries(mysql mysqlclient)
+  target_link_libraries(urlmod curl)
+  target_link_libraries(mysqlmod mysqlclient)
+  target_link_libraries(rocksdbmod rocksdb)
 endif()
 
-target_link_libraries(redis hiredis)
+target_link_libraries(redismod hiredis)
