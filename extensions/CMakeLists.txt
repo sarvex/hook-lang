@@ -20,6 +20,9 @@ if(APPLE)
   link_directories(/usr/local/opt/mysql-client/lib)
   include_directories(/opt/homebrew/opt/mysql-client/include)
   link_directories(/opt/homebrew/opt/mysql-client/lib)
+  include_directories(/opt/homebrew/opt/mongo-c-driver/include/libmongoc-1.0)
+  include_directories(/opt/homebrew/opt/mongo-c-driver/include/libbson-1.0)
+  link_directories(/opt/homebrew/opt/mongo-c-driver/lib)
 endif()
 
 add_library(sqlite SHARED
@@ -168,6 +171,26 @@ add_library(mysql SHARED
   ../src/hk_value.c
   ../src/hk_vm.c)
 
+add_library(mongodb SHARED
+  mongodb.c
+  ../src/hk_array.c
+  ../src/hk_builtin.c
+  ../src/hk_callable.c
+  ../src/hk_chunk.c
+  ../src/hk_utils.c
+  ../src/hk_error.c
+  ../src/hk_iterable.c
+  ../src/hk_iterator.c
+  ../src/hk_memory.c
+  ../src/hk_module.c
+  ../src/hk_range.c
+  ../src/hk_string_map.c
+  ../src/hk_string.c
+  ../src/hk_struct.c
+  ../src/hk_userdata.c
+  ../src/hk_value.c
+  ../src/hk_vm.c)
+
 if(MSVC)
   target_link_libraries(sqlite PRIVATE unofficial::sqlite3::sqlite3)
   target_link_libraries(url PRIVATE CURL::libcurl)
@@ -176,6 +199,7 @@ else()
   target_link_libraries(sqlite sqlite3)
   target_link_libraries(url curl)
   target_link_libraries(mysql mysqlclient)
+  target_link_libraries(mongodb mongoc-1.0 bson-1.0)
 endif()
 
 target_link_libraries(redis hiredis)

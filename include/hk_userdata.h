@@ -18,5 +18,6 @@ typedef struct hk_userdata
 
 void hk_userdata_init(hk_userdata_t *udata, void (*deinit)(struct hk_userdata *));
 void hk_userdata_free(hk_userdata_t *udata);
+void hk_userdata_release(hk_userdata_t *udata);
 
 #endif // HK_USERDATA_H

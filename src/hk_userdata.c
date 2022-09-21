@@ -18,3 +18,10 @@ void hk_userdata_free(hk_userdata_t *udata)
     udata->deinit(udata);
   free(udata);
 }
+
+void hk_userdata_release(hk_userdata_t *udata)
+{
+  hk_decr_ref(udata);
+  if (hk_is_unreachable(udata))
+    hk_userdata_free(udata);
+}
