@@ -6,14 +6,15 @@ mut square = 1;
 mut increment = 3;
 
 println("The open doors are: ");
-
-for (mut door = 1; door <= 100; door++)
+mut door = 1;
+while (door <= 100)
 {
-  if (door != square)
-    continue;
-  print(to_string(door) + " ");
-  square += increment;
-  increment += 2;
+  if (door == square) {
+    print(to_string(door) + " ");
+    square += increment;
+    increment += 2;
+  }
+  door++;
 }
 
 println("");

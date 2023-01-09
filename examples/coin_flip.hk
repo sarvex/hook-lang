@@ -7,12 +7,14 @@ use { round, random } from math;
 fn coin_flip(times) {
   mut heads = 0;
   mut tails = 0;
-  for (mut i = 0; i < times; i++) {
+  mut i = 0;
+  while (i < times) {
     val n = round(random() * 1);
     if (n == 0)
       heads++;
     else
       tails++;
+    i++;
   }
   println("heads: " + to_string(heads));
   println("tails: " + to_string(tails));
