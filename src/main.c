@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "hk_parser.h"
 #include "hk_compiler.h"
 #include "hk_dump.h"
 #include "hk_vm.h"
@@ -19,6 +20,7 @@ typedef struct
   bool opt_help;
   bool opt_version;
   bool opt_eval;
+  bool opt_parse;
   bool opt_dump;
   bool opt_compile;
   bool opt_run;
@@ -49,6 +51,7 @@ static inline void parse_args(parsed_args_t *parsed_args, int32_t argc, const ch
   parsed_args->opt_help = false;
   parsed_args->opt_version = false;
   parsed_args->opt_eval = false;
+  parsed_args->opt_parse = false;
   parsed_args->opt_dump = false;
   parsed_args->opt_compile = false;
   parsed_args->opt_run = false;
@@ -91,6 +94,11 @@ static inline void parse_option(parsed_args_t *parsed_args, const char *arg)
     parsed_args->opt_eval = true;
     return;
   }
+  if (option(arg, "-p") || option(arg, "--parse"))
+  {
+    parsed_args->opt_parse = true;
+    return;
+  }
   if (option(arg, "-d") || option(arg, "--dump"))
   {
     parsed_args->opt_dump = true;
@@ -117,12 +125,12 @@ static inline void parse_option(parsed_args_t *parsed_args, const char *arg)
 
 static inline const char *option(const char *arg, const char *opt)
 {
-  int32_t len = 0;
-  while (opt[len] && opt[len] != '=')
-    ++len;
-  if (memcmp(arg, opt, len))
+  int32_t length = 0;
+  while (opt[length] && opt[length] != '=')
+    ++length;
+  if (memcmp(arg, opt, length))
     return NULL;
-  return arg[len] == '=' ? &arg[len + 1] : &arg[len];
+  return arg[length] == '=' ? &arg[length + 1] : &arg[length];
 }
 
 static inline hk_array_t *args_array(parsed_args_t *parsed_args)
@@ -148,6 +156,7 @@ static inline void print_help(const char *cmd)
     "  -h, --help     prints this message\n"
     "  -v, --version  shows version information\n"
     "  -e, --eval     evaluates a string from the terminal\n"
+    "  -p, --parse    shows the abstract syntax tree\n"
     "  -d, --dump     shows the bytecode\n"
     "  -c, --compile  compiles source code\n"
     "  -r, --run      runs directly from bytecode\n"
@@ -268,6 +277,13 @@ int32_t main(int32_t argc, const char **argv)
   }
   hk_string_t *file = hk_string_from_chars(-1, input ? input : "<stdin>");
   hk_string_t *source = input ? load_source_from_file(input) : hk_string_from_stream(stdin, '\0');
+  if (parsed_args.opt_parse)
+  {
+    hk_ast_node_t *ast = hk_parse(file, source);
+    hk_ast_print(ast);
+    hk_ast_free(ast);
+    return EXIT_SUCCESS;
+  }
   hk_closure_t *cl = hk_compile(file, source);
   const char *output = parsed_args.output;
   if (parsed_args.opt_dump)

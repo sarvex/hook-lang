@@ -38,6 +38,7 @@ endif()
 
 add_executable(${PROJECT_NAME}
   src/hk_array.c
+  src/hk_ast.c
   src/hk_builtin.c
   src/hk_callable.c
   src/hk_chunk.c
@@ -50,6 +51,7 @@ add_executable(${PROJECT_NAME}
   src/main.c
   src/hk_memory.c
   src/hk_module.c
+  src/hk_parser.c
   src/hk_range.c
   src/hk_scanner.c
   src/hk_string_map.c
