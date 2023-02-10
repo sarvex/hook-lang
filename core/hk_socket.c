@@ -125,8 +125,9 @@ static inline socket_wrapper_t *socket_wrapper_new(socket_t sock, int32_t domain
 static void socket_wrapper_deinit(hk_userdata_t *udata)
 {
   socket_t sock = ((socket_wrapper_t *) udata)->sock;
-  if (sock != INVALID_SOCKET)
-    socket_close(sock);
+  if (sock == INVALID_SOCKET)
+    return;
+  socket_close(sock);
 }
 
 static int32_t new_call(hk_vm_t *vm, hk_value_t *args)

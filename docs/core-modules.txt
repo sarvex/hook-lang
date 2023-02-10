@@ -113,3 +113,14 @@ encoding:
   base58_decode(str: string) -> string
   base64_encode(str: string) -> string
   base64_decode(str: string) -> string
+
+threading:
+
+  new_thread(handler: function) -> userdata
+  new_mutex() -> userdata
+  new_cond() -> userdata
+  join(thread: userdata) -> int
+  lock(mutex: userdata) -> int
+  unlock(mutex: userdata) -> int
+  wait(cond: userdata, mutex: userdata) -> int
+  signal(cond: userdata) -> int
