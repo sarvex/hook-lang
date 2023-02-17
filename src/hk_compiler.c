@@ -121,6 +121,7 @@ static void compile_for_statement(compiler_t *comp);
 static void compile_foreach_statement(compiler_t *comp);
 static void compile_continue_statement(compiler_t *comp);
 static void compile_break_statement(compiler_t *comp);
+static void compile_yield_statement(compiler_t *comp);
 static void compile_return_statement(compiler_t *comp);
 static void compile_block(compiler_t *comp);
 static void compile_expression(compiler_t *comp);
@@ -486,6 +487,11 @@ static void compile_statement(compiler_t *comp)
   if (match(scan, TOKEN_BREAK))
   {
     compile_break_statement(comp);
+    return;
+  }
+  if (match(scan, TOKEN_YIELD))
+  {
+    compile_yield_statement(comp);
     return;
   }
   if (match(scan, TOKEN_RETURN))
@@ -1500,6 +1506,22 @@ static void compile_break_statement(compiler_t *comp)
       "cannot use more than %d breaks", MAX_BREAKS);
   int32_t offset = emit_jump(&comp->fn->chunk, HK_OP_JUMP);
   loop->offsets[loop->num_offsets++] = offset;
+}
+
+static void compile_yield_statement(compiler_t *comp)
+{
+  scanner_t *scan = comp->scan;
+  hk_chunk_t *chunk = &comp->fn->chunk;
+  scanner_next_token(scan);
+  if (match(scan, TOKEN_SEMICOLON))
+  {
+    scanner_next_token(scan);
+    hk_chunk_emit_opcode(chunk, HK_OP_YIELD_NIL);
+    return;
+  }
+  compile_expression(comp);
+  consume(comp, TOKEN_SEMICOLON);
+  hk_chunk_emit_opcode(chunk, HK_OP_YIELD);
 }
 
 static void compile_return_statement(compiler_t *comp)

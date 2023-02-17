@@ -76,4 +76,5 @@ TOKEN_TRUE         'true'
 TOKEN_VAL          'val'
 TOKEN_WHILE        'while'
 TOKEN_WHILEBANG    'while!'
+TOKEN_YIELD        'yield'
 TOKEN_NAME         NAME

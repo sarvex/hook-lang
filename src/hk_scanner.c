@@ -621,6 +621,11 @@ void scanner_next_token(scanner_t *scan)
     scan->token.type = TOKEN_WHILE;
     return;
   }
+  if (match_keyword(scan, "yield"))
+  {
+    scan->token.type = TOKEN_YIELD;
+    return;
+  }
   if (match_name(scan))
     return;
   lexical_error(scan, "unexpected character");

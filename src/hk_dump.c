@@ -90,6 +90,9 @@ void hk_dump(hk_function_t *fn, FILE *stream)
     case HK_OP_CLOSURE:
       fprintf(stream, "Closure               %5d\n", code[i++]);
       break;
+    case HK_OP_GENERATOR:
+      fprintf(stream, "Generator\n");
+      break;
     case HK_OP_UNPACK_ARRAY:
       fprintf(stream, "UnpackArray           %5d\n", code[i++]);
       break;
@@ -279,6 +282,12 @@ void hk_dump(hk_function_t *fn, FILE *stream)
       break;
     case HK_OP_LOAD_MODULE:
       fprintf(stream, "LoadModule\n");
+      break;
+    case HK_OP_YIELD:
+      fprintf(stream, "Yield\n");
+      break;
+    case HK_OP_YIELD_NIL:
+      fprintf(stream, "YieldNil\n");
       break;
     case HK_OP_RETURN:
       fprintf(stream, "Return\n");

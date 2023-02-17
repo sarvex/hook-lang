@@ -45,6 +45,7 @@ add_executable(${PROJECT_NAME}
   src/hk_compiler.c
   src/hk_dump.c
   src/hk_error.c
+  src/hk_generator.c
   src/hk_iterable.c
   src/hk_iterator.c
   src/main.c

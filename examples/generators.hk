@@ -1,0 +1,35 @@
+//
+// generators.hk
+//
+
+fn filter(iterable, func) {
+  foreach (elem in iterable) {
+    if (!func(elem))
+      continue;
+    yield elem;
+  }
+}
+
+fn map(iterable, func) {
+  foreach (elem in iterable) {
+    yield func(elem);
+  }
+}
+
+fn reduce(iterable, func, initial) {
+  mut acc = initial;
+  foreach (elem in iterable) {
+    acc = func(acc, elem);
+  }
+  return acc;
+}
+
+val even_filter = filter(numbers, |elem| => x % 2 == 0);
+
+val square_map = map(numbers, |elem| => x * x);
+
+val sum_reduce = reduce(numbers, |acc, elem| => acc + elem, 0);
+
+val numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+val result = sum_reduce(square_map(even_filter(numbers)));
+println(result);

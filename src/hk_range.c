@@ -114,7 +114,7 @@ int32_t hk_range_compare(hk_range_t *range1, hk_range_t *range2)
   return 0;
 }
 
-hk_iterator_t *hk_range_new_iterator(hk_range_t *range)
+hk_iterator_t *hk_range_iterator_new(hk_range_t *range)
 {
   range_iterator_t *range_it = range_iterator_allocate(range);
   range_it->current = range->start;

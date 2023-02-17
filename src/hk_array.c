@@ -361,13 +361,6 @@ bool hk_array_compare(hk_array_t *arr1, hk_array_t *arr2, int32_t *result)
   return true;
 }
 
-hk_iterator_t *hk_array_new_iterator(hk_array_t *arr)
-{
-  array_iterator_t *arr_it = array_iterator_allocate(arr);
-  arr_it->current = 0;
-  return (hk_iterator_t *) arr_it;
-}
-
 hk_array_t *hk_array_reverse(hk_array_t *arr)
 {
   int32_t length = arr->length;
@@ -437,4 +430,11 @@ hk_array_t *hk_array_deserialize(FILE *stream)
     arr->elements[i] = elem;
   }
   return arr;
+}
+
+hk_iterator_t *hk_array_iterator_new(hk_array_t *arr)
+{
+  array_iterator_t *arr_it = array_iterator_allocate(arr);
+  arr_it->current = 0;
+  return (hk_iterator_t *) arr_it;
 }

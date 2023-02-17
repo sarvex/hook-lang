@@ -1,0 +1,25 @@
+
+fn g1() {
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+foreach (x in g1()) {
+  println(x);
+}
+
+fn g2() {
+  println(1);
+  yield;
+  println(2);
+  yield;
+  println(3);
+}
+
+mut it = iter(g2());
+while (is_valid(it)) {
+  val x = current(it);
+  println(x);
+  it = next(it);
+}

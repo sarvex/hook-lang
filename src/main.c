@@ -13,6 +13,8 @@
 #include "hk_utils.h"
 #include "hk_version.h"
 
+#define DEFAULT_STACK_SIZE (1 << 8)
+
 typedef struct
 {
   const char *cmd;
@@ -52,7 +54,7 @@ static inline void parse_args(parsed_args_t *parsed_args, int32_t argc, const ch
   parsed_args->opt_dump = false;
   parsed_args->opt_compile = false;
   parsed_args->opt_run = false;
-  parsed_args->stack_size = 0;
+  parsed_args->stack_size = DEFAULT_STACK_SIZE;
   parsed_args->input = NULL;
   parsed_args->output = NULL;
   int32_t i = 1;

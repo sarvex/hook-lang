@@ -18,6 +18,7 @@ stmt        ::= 'import' NAME ( 'as' NAME )? ';'
               | 'foreach' '(' NAME 'in' expr ')' stmt
               | 'continue' ';'
               | 'break' ';'
+              | 'yield' expr? ';'
               | 'return' expr? ';'
               | block
 

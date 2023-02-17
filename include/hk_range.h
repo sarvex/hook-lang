@@ -23,6 +23,6 @@ void hk_range_release(hk_range_t *range);
 void hk_range_print(hk_range_t *range);
 bool hk_range_equal(hk_range_t *range1, hk_range_t *range2);
 int32_t hk_range_compare(hk_range_t *range1, hk_range_t *range2);
-hk_iterator_t *hk_range_new_iterator(hk_range_t *range);
+hk_iterator_t *hk_range_iterator_new(hk_range_t *range);
 
 #endif // HK_RANGE_H

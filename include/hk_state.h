@@ -11,7 +11,7 @@
 #include "hk_callable.h"
 #include "hk_userdata.h"
 
-#define HK_STACK_MIN_CAPACITY (1 << 8)
+#define HK_STACK_MIN_CAPACITY (1 << 3)
 
 typedef struct hk_state
 {

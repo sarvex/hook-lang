@@ -28,6 +28,7 @@ static inline int32_t adjust_instance_args(hk_state_t *state, int32_t length, in
 static inline int32_t do_construct(hk_state_t *state, int32_t length);
 static inline int32_t do_iterator(hk_state_t *state);
 static inline int32_t do_closure(hk_state_t *state, hk_function_t *fn);
+static inline void do_generator(hk_state_t *state);
 static inline int32_t do_unpack_array(hk_state_t *state, int32_t n);
 static inline int32_t do_unpack_struct(hk_state_t *state, int32_t n);
 static inline int32_t do_add_element(hk_state_t *state);
@@ -291,6 +292,12 @@ static inline int32_t do_closure(hk_state_t *state, hk_function_t *fn)
   }
   hk_incr_ref(cl);
   return HK_STATUS_OK;
+}
+
+static inline void do_generator(hk_state_t *state)
+{
+  // TODO: Implement this function
+  (void) state;
 }
 
 static inline int32_t do_unpack_array(hk_state_t *state, int32_t n)
@@ -1466,6 +1473,9 @@ static inline int32_t call_function(hk_state_t *state, hk_value_t *locals, hk_cl
       if (do_closure(state, functions[read_byte(&pc)]) == HK_STATUS_ERROR)
         goto error;
       break;
+    case HK_OP_GENERATOR:
+      do_generator(state);
+      break;
     case HK_OP_UNPACK_ARRAY:
       if (do_unpack_array(state, read_byte(&pc)) == HK_STATUS_ERROR)
         goto error;
@@ -1738,6 +1748,12 @@ static inline int32_t call_function(hk_state_t *state, hk_value_t *locals, hk_cl
       if (load_module(state) == HK_STATUS_ERROR)
         goto error;
       break;
+    case HK_OP_YIELD:
+      return HK_STATUS_SUSPEND;
+    case HK_OP_YIELD_NIL:
+      if (push(state, HK_NIL_VALUE) == HK_STATUS_ERROR)
+        goto error;
+      return HK_STATUS_SUSPEND;
     case HK_OP_RETURN:
       return HK_STATUS_OK;
     case HK_OP_RETURN_NIL:
