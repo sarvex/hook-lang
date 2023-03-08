@@ -66,37 +66,44 @@ Keywords are reserved words that have a special meaning and cannot be used as na
     <tr>
       <td><code>as</code></td>
       <td><code>break</code></td>
+      <td><code>case</code></td>
       <td><code>continue</code></td>
-      <td><code>del</code></td>
-      <td><code>do</code></td>
+      <td><code>default</code></td>
     </tr>
     <tr>
+      <td><code>del</code></td>
+      <td><code>do</code></td>
       <td><code>else</code></td>
       <td><code>false</code></td>
       <td><code>fn</code></td>
-      <td><code>for</code></td>
-      <td><code>foreach</code></td>
     </tr>
     <tr>
+      <td><code>for</code></td>
+      <td><code>foreach</code></td>
       <td><code>from</code></td>
       <td><code>if</code></td>
       <td><code>if!</code></td>
+    </tr>
+    <tr>
       <td><code>import</code></td>
       <td><code>in</code></td>
-    </tr>
-    <tr>
       <td><code>let</code></td>
       <td><code>loop</code></td>
-      <td><code>match</code></td>
       <td><code>mut</code></td>
-      <td><code>nil</code></td>
     </tr>
     <tr>
+      <td><code>nil</code></td>
       <td><code>return</code></td>
       <td><code>struct</code></td>
+      <td><code>switch</code></td>
       <td><code>true</code></td>
+    </tr>
+    <tr>
       <td><code>while</code></td>
       <td><code>while!</code></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
   </tbody>
 </table>
@@ -189,7 +196,7 @@ statement            ::= import_statement
                        | function_declaration
                        | delete_statement
                        | if_statement
-                       | match_statement
+                       | switch_statement
                        | loop_statement
                        | while_statement
                        | for_statement
@@ -219,7 +226,7 @@ delete_statement     ::= 'del' name subscript* '[' expression ']' ';'
 
 if_statement         ::= ( 'if' | 'if!' ) '(' expression ')' statement ( 'else' statement )?
 
-match_statement      ::= 'match' '(' expression ')' '{' ( expression '=>' statement )+ ( '_' '=>' statement )? '}'
+switch_statement     ::= 'switch' '(' expression ')' '{' ( 'case' expression ':' statement )+ ( 'default' ':' statement )? '}'
 
 loop_statement       ::= 'loop' statement
 
@@ -233,7 +240,7 @@ break_statement      ::= ( 'break' | 'continue' ) ';'
 
 return_statement     ::= 'return' expression? ';'
 
-block                ::= '{' stmt* '}'
+block                ::= '{' statement* '}'
 
 assign_op            ::= '=' | '|=' | '^=' | '&=' | '<<=' | '>>=' 
                        | '+=' | '-=' | '*=' | '/=' | '~/=' | '%='
@@ -272,7 +279,6 @@ primary_expression   ::= literal
                        | anonymous_struct
                        | anonymous_function
                        | if_expression
-                       | match_expression
                        | subscript_call
                        | group_expression
 
@@ -288,9 +294,6 @@ anonymous_function   ::= '|' ( 'mut'? name ( ',' 'mut'? name )* )? '|' ( '=>' ex
                        | '||' ( '=>' expression | block )
 
 if_expression        ::= ( 'if' | 'if!' ) '(' expression ')' expression 'else' expression
-
-match_expression     ::= 'match' '(' expression ')' '{' expression '=>' expression ( ',' expression '=>' expression )*
-                         ',' '_' '=>' expression '}'
 
 subscript_call       ::= name ( subscript | call )* ( '{' ( expression ( ',' expression )* )? '}' )?
 

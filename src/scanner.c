@@ -506,9 +506,19 @@ void scanner_next_token(scanner_t *scan)
     scan->token.type = TOKEN_BREAK;
     return;
   }
+  if (match_keyword(scan, "case"))
+  {
+    scan->token.type = TOKEN_CASE;
+    return;
+  }
   if (match_keyword(scan, "continue"))
   {
     scan->token.type = TOKEN_CONTINUE;
+    return;
+  }
+  if (match_keyword(scan, "default"))
+  {
+    scan->token.type = TOKEN_DEFAULT;
     return;
   }
   if (match_keyword(scan, "del"))
@@ -581,11 +591,6 @@ void scanner_next_token(scanner_t *scan)
     scan->token.type = TOKEN_LOOP;
     return;
   }
-  if (match_keyword(scan, "match"))
-  {
-    scan->token.type = TOKEN_MATCH;
-    return;
-  }
   if (match_keyword(scan, "mut"))
   {
     scan->token.type = TOKEN_MUT;
@@ -604,6 +609,11 @@ void scanner_next_token(scanner_t *scan)
   if (match_keyword(scan, "struct"))
   {
     scan->token.type = TOKEN_STRUCT;
+    return;
+  }
+  if (match_keyword(scan, "switch"))
+  {
+    scan->token.type = TOKEN_SWITCH;
     return;
   }
   if (match_keyword(scan, "true"))

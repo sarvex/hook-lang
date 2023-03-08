@@ -10,7 +10,7 @@ stmt        ::= 'import' NAME ( 'as' NAME )? ';'
                 ( '=>' expr | block )
               | 'del' NAME subscr* '[' expr ']' ';'
               | ( 'if' | 'if!' ) '(' expr ')' stmt ( 'else' stmt )?
-              | 'match' '(' expr ')' '{' ( expr '=>' stmt )+ ( '_' '=>' stmt )? '}'
+              | 'switch' '(' expr ')' '{' ( 'case' expr ':' stmt )+ ( 'default' ':' stmt )? '}'
               | 'loop' stmt
               | ( 'while' | 'while!' ) '(' expr ')' stmt
               | 'do' stmt ( 'while' | 'while!' ) '(' expr ')' ';'
@@ -72,7 +72,5 @@ prim_expr   ::= 'nil' | 'false' | 'true' | INT | FLOAT | STRING
               | '|' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? '|' ( '=>' expr | block )
               | '||' ( '=>' expr | block )
               | ( 'if' | 'if!' ) '(' expr ')' expr 'else' expr
-              | 'match' '(' expr ')' '{' expr '=>' expr ( ',' expr '=>' expr )*
-                ',' '_' '=>' expr '}'
               | NAME ( subscr | call )* ( '{' ( expr ( ',' expr )* )? '}' )?
               | '(' expr ')'

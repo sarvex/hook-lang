@@ -1,0 +1,33 @@
+
+switch ("foo") {
+case "foo":
+  println("foo");
+}
+
+switch ("foo") {
+case "bar":
+  println("bar");
+}
+
+switch ("bar") {
+case "foo":
+  println("foo");
+case "bar":
+  println("bar");
+}
+
+switch ("bar") {
+case "foo":
+  println("foo");
+default:
+  println("default");
+}
+
+switch ("bar") {
+case "foo":
+  println("foo");
+case "bar":
+  println("bar");
+default:
+  println("default");
+}

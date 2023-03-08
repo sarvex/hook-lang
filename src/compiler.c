@@ -112,8 +112,8 @@ static void compile_anonymous_function_without_params(compiler_t *comp);
 static void compile_del_statement(compiler_t *comp);
 static void compile_delete(compiler_t *comp, bool inplace);
 static void compile_if_statement(compiler_t *comp, bool not);
-static void compile_match_statement(compiler_t *comp);
-static void compile_match_statement_member(compiler_t *comp);
+static void compile_switch_statement(compiler_t *comp);
+static void compile_switch_statement_member(compiler_t *comp);
 static void compile_loop_statement(compiler_t *comp);
 static void compile_while_statement(compiler_t *comp, bool not);
 static void compile_do_statement(compiler_t *comp);
@@ -140,8 +140,6 @@ static void compile_prim_expression(compiler_t *comp);
 static void compile_array_constructor(compiler_t *comp);
 static void compile_struct_constructor(compiler_t *comp);
 static void compile_if_expression(compiler_t *comp, bool not);
-static void compile_match_expression(compiler_t *comp);
-static void compile_match_expression_member(compiler_t *comp);
 static void compile_subscript(compiler_t *comp);
 static variable_t compile_variable(compiler_t *comp, token_t *tk, bool emit);
 static variable_t *compile_nonlocal(compiler_t *comp, token_t *tk);
@@ -443,9 +441,9 @@ static void compile_statement(compiler_t *comp)
     compile_if_statement(comp, true);
     return;
   }
-  if (match(scan, TOKEN_MATCH))
+  if (match(scan, TOKEN_SWITCH))
   {
-    compile_match_statement(comp);
+    compile_switch_statement(comp);
     return;
   }
   if (match(scan, TOKEN_LOOP))
@@ -1255,7 +1253,7 @@ static void compile_if_statement(compiler_t *comp, bool not)
   patch_jump(comp, offset2);
 }
 
-static void compile_match_statement(compiler_t *comp)
+static void compile_switch_statement(compiler_t *comp)
 {
   scanner_t *scan = comp->scan;
   hk_chunk_t *chunk = &comp->fn->chunk;
@@ -1264,17 +1262,18 @@ static void compile_match_statement(compiler_t *comp)
   compile_expression(comp);
   consume(comp, TOKEN_RPAREN);
   consume(comp, TOKEN_LBRACE);
+  consume(comp, TOKEN_CASE);
   compile_expression(comp);
-  consume(comp, TOKEN_ARROW);
+  consume(comp, TOKEN_COLON);
   int32_t offset1 = emit_jump(chunk, HK_OP_JUMP_IF_NOT_EQUAL);
   compile_statement(comp);
   int32_t offset2 = emit_jump(chunk, HK_OP_JUMP);
   patch_jump(comp, offset1);
-  compile_match_statement_member(comp);
+  compile_switch_statement_member(comp);
   patch_jump(comp, offset2);
 }
 
-static void compile_match_statement_member(compiler_t *comp)
+static void compile_switch_statement_member(compiler_t *comp)
 {
   scanner_t *scan = comp->scan;
   hk_chunk_t *chunk = &comp->fn->chunk;
@@ -1284,22 +1283,25 @@ static void compile_match_statement_member(compiler_t *comp)
     hk_chunk_emit_opcode(chunk, HK_OP_POP);
     return;
   }
-  if (match(scan, TOKEN_UNDERSCORE))
+  if (match(scan, TOKEN_DEFAULT))
   {
     scanner_next_token(scan);
-    consume(comp, TOKEN_ARROW);
+    consume(comp, TOKEN_COLON);
     hk_chunk_emit_opcode(chunk, HK_OP_POP);
     compile_statement(comp);
     consume(comp, TOKEN_RBRACE);
     return;
   }
+  if (!match(scan, TOKEN_CASE))
+    syntax_error_unexpected(comp);
+  scanner_next_token(scan);
   compile_expression(comp);
-  consume(comp, TOKEN_ARROW);
+  consume(comp, TOKEN_COLON);
   int32_t offset1 = emit_jump(chunk, HK_OP_JUMP_IF_NOT_EQUAL);
   compile_statement(comp);
   int32_t offset2 = emit_jump(chunk, HK_OP_JUMP);
   patch_jump(comp, offset1);
-  compile_match_statement_member(comp);
+  compile_switch_statement_member(comp);
   patch_jump(comp, offset2);
 }
 
@@ -1879,11 +1881,6 @@ static void compile_prim_expression(compiler_t *comp)
     compile_if_expression(comp, true);
     return;
   }
-  if (match(scan, TOKEN_MATCH))
-  {
-    compile_match_expression(comp);
-    return;
-  }
   if (match(scan, TOKEN_NAME))
   {
     compile_subscript(comp);
@@ -1983,71 +1980,6 @@ static void compile_if_expression(compiler_t *comp, bool not)
   consume(comp, TOKEN_ELSE);
   compile_expression(comp);
   patch_jump(comp, offset2);
-}
-
-static void compile_match_expression(compiler_t *comp)
-{
-  scanner_t *scan = comp->scan;
-  hk_chunk_t *chunk = &comp->fn->chunk;
-  scanner_next_token(scan);
-  consume(comp, TOKEN_LPAREN);
-  compile_expression(comp);
-  consume(comp, TOKEN_RPAREN);
-  consume(comp, TOKEN_LBRACE);
-  compile_expression(comp);
-  consume(comp, TOKEN_ARROW);
-  int32_t offset1 = emit_jump(chunk, HK_OP_JUMP_IF_NOT_EQUAL);
-  compile_expression(comp);
-  int32_t offset2 = emit_jump(chunk, HK_OP_JUMP);
-  patch_jump(comp, offset1);
-  if (match(scan, TOKEN_COMMA))
-  {
-    scanner_next_token(scan);
-    if (match(scan, TOKEN_UNDERSCORE))
-    {
-      scanner_next_token(scan);
-      consume(comp, TOKEN_ARROW);
-      hk_chunk_emit_opcode(chunk, HK_OP_POP);
-      compile_expression(comp);
-      consume(comp, TOKEN_RBRACE);
-      patch_jump(comp, offset2);
-      return;
-    }
-    compile_match_expression_member(comp);
-    patch_jump(comp, offset2);
-    return;
-  }
-  syntax_error_unexpected(comp);
-}
-
-static void compile_match_expression_member(compiler_t *comp)
-{
-  scanner_t *scan = comp->scan;
-  hk_chunk_t *chunk = &comp->fn->chunk;
-  compile_expression(comp);
-  consume(comp, TOKEN_ARROW);
-  int32_t offset1 = emit_jump(chunk, HK_OP_JUMP_IF_NOT_EQUAL);
-  compile_expression(comp);
-  int32_t offset2 = emit_jump(chunk, HK_OP_JUMP);
-  patch_jump(comp, offset1);
-  if (match(scan, TOKEN_COMMA))
-  {
-    scanner_next_token(scan);
-    if (match(scan, TOKEN_UNDERSCORE))
-    {
-      scanner_next_token(scan);
-      consume(comp, TOKEN_ARROW);
-      hk_chunk_emit_opcode(chunk, HK_OP_POP);
-      compile_expression(comp);
-      consume(comp, TOKEN_RBRACE);
-      patch_jump(comp, offset2);
-      return;
-    }
-    compile_match_expression_member(comp);
-    patch_jump(comp, offset2);
-    return;
-  }
-  syntax_error_unexpected(comp);
 }
 
 static void compile_subscript(compiler_t *comp)

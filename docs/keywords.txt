@@ -1,7 +1,9 @@
 
 as
 break
+case
 continue
+default
 del
 do
 else
@@ -16,11 +18,11 @@ import
 in
 let
 loop
-match
 mut
 nil
 return
 struct
+switch
 true
 while
 while!
