@@ -285,10 +285,10 @@ Example:
 
 ```rust
 fn foo() {}
-println(is_callable(foo));   // true
-println(is_callable(|| {})); // true
-println(is_callable(print)); // true
-println(is_callable(1));     // false
+println(is_callable(foo));      // true
+println(is_callable(fn () {})); // true
+println(is_callable(print));    // true
+println(is_callable(1));        // false
 ```
 
 ### is_userdata

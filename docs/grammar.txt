@@ -6,8 +6,8 @@ stmt        ::= 'import' NAME ( 'as' NAME )? ';'
               | var_decl ';'
               | assign_call ';'
               | 'struct' NAME '{' ( STRING | NAME ( ',' STRING | NAME )* )? '}'
-              | 'fn' NAME '(' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? ')'
-                ( '=>' expr | block )
+              | 'fn' NAME ( '[' 'mut'? NAME ( ',' 'mut'? NAME )* ']' )?
+                '(' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? ')' ( '=>' expr | block )
               | 'del' NAME subscr* '[' expr ']' ';'
               | ( 'if' | 'if!' ) '(' expr ')' stmt ( 'else' stmt )?
               | 'match' '(' expr ')' '{' ( expr '=>' stmt )+ ( '_' '=>' stmt )? '}'
@@ -69,8 +69,8 @@ prim_expr   ::= 'nil' | 'false' | 'true' | INT | FLOAT | STRING
               | '[' ( expr ( ',' expr )* )? ']'
               | '{' ( STRING | NAME ':' expr ( ',' STRING | NAME ':' expr )* )? '}'
               | 'struct' '{' ( STRING | NAME ( ',' STRING | NAME )* )? '}'
-              | '|' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? '|' ( '=>' expr | block )
-              | '||' ( '=>' expr | block )
+              | 'fn' ( '[' 'mut'? NAME ( ',' 'mut'? NAME )* ']' )?
+                '(' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? ')' ( '=>' expr | block )
               | ( 'if' | 'if!' ) '(' expr ')' expr 'else' expr
               | 'match' '(' expr ')' '{' expr '=>' expr ( ',' expr '=>' expr )*
                 ',' '_' '=>' expr '}'

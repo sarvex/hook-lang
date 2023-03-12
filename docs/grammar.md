@@ -213,7 +213,8 @@ assign_call          ::= name subscript* assign_op expression
 
 struct_declaration   ::= 'struct' name '{' ( string | name ( ',' string | name )* )? '}'
 
-function_declaration ::= 'fn' name '(' ( 'mut'? name ( ',' 'mut'? name )* )? ')' ( '=>' expression | block )
+function_declaration ::= 'fn' name ( '[' 'mut'? name ( ',' 'mut'? name )* ']' )?
+                         '(' ( 'mut'? name ( ',' 'mut'? name )* )? ')' ( '=>' expression | block )
 
 delete_statement     ::= 'del' name subscript* '[' expression ']' ';'
 
@@ -284,8 +285,8 @@ struct_constructor   ::= '{' ( string | name ':' expression ( ',' string | name 
 
 anonymous_struct     ::= 'struct' '{' ( string | name ( ',' string | name )* )? '}'
 
-anonymous_function   ::= '|' ( 'mut'? name ( ',' 'mut'? name )* )? '|' ( '=>' expression | block )
-                       | '||' ( '=>' expression | block )
+anonymous_function   ::= 'fn' ( '[' 'mut'? name ( ',' 'mut'? name )* ']' )?
+                         '(' ( 'mut'? name ( ',' 'mut'? name )* )? ')' ( '=>' expression | block )
 
 if_expression        ::= ( 'if' | 'if!' ) '(' expression ')' expression 'else' expression
 

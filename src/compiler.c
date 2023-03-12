@@ -108,7 +108,10 @@ static int32_t compile_assign(compiler_t *comp, production_t prod, bool inplace)
 static void compile_struct_declaration(compiler_t *comp, bool is_anonymous);
 static void compile_function_declaration(compiler_t *comp);
 static void compile_anonymous_function(compiler_t *comp);
-static void compile_anonymous_function_without_params(compiler_t *comp);
+
+// TODO
+//static void compile_anonymous_function_without_params(compiler_t *comp);
+
 static void compile_del_statement(compiler_t *comp);
 static void compile_delete(compiler_t *comp, bool inplace);
 static void compile_if_statement(compiler_t *comp, bool not);
@@ -761,7 +764,9 @@ end:
   if (!var.is_mutable)
     syntax_error(fn->name, scan->file->chars, tk->line, tk->col,
       "cannot assign to immutable variable `%.*s`", tk->length, tk->start);
-  hk_chunk_emit_opcode(chunk, HK_OP_STORE);
+  // TODO
+  hk_opcode_t op = var.is_local ? HK_OP_SET_LOCAL : HK_OP_SET_NONLOCAL;
+  hk_chunk_emit_opcode(chunk, op);
   hk_chunk_emit_byte(chunk, var.index);
 }
 
@@ -996,6 +1001,11 @@ static void compile_struct_declaration(compiler_t *comp, bool is_anonymous)
   hk_chunk_emit_byte(chunk, length);
 }
 
+// TODO
+/*
+  'fn' NAME ( '[' 'mut'? NAME ( ',' 'mut'? NAME )* ']' )?
+  '(' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? ')' ( '=>' expr | block )
+*/
 static void compile_function_declaration(compiler_t *comp)
 {
   scanner_t *scan = comp->scan;
@@ -1076,6 +1086,11 @@ end:
   hk_chunk_emit_byte(chunk, index);
 }
 
+// TODO
+/*
+  'fn' ( '[' 'mut'? NAME ( ',' 'mut'? NAME )* ']' )?
+  '(' ( 'mut'? NAME ( ',' 'mut'? NAME )* )? ')' ( '=>' expr | block )
+*/
 static void compile_anonymous_function(compiler_t *comp)
 {
   scanner_t *scan = comp->scan;
@@ -1085,7 +1100,8 @@ static void compile_anonymous_function(compiler_t *comp)
   compiler_t child_comp;
   compiler_init(&child_comp, comp, scan, NULL);
   hk_chunk_t *child_chunk = &child_comp.fn->chunk;
-  if (match(scan, TOKEN_PIPE))
+  consume(comp, TOKEN_LPAREN);
+  if (match(scan, TOKEN_RPAREN))
   {
     scanner_next_token(scan);
     if (match(scan, TOKEN_ARROW))
@@ -1128,7 +1144,7 @@ static void compile_anonymous_function(compiler_t *comp)
     ++arity;
   }
   child_comp.fn->arity = arity;
-  consume(comp, TOKEN_PIPE);
+  consume(comp, TOKEN_RPAREN);
   if (match(scan, TOKEN_ARROW))
   {
     scanner_next_token(scan);
@@ -1148,6 +1164,8 @@ end:
   hk_chunk_emit_byte(chunk, index);
 }
 
+// TODO
+/*
 static void compile_anonymous_function_without_params(compiler_t *comp)
 {
   scanner_t *scan = comp->scan;
@@ -1175,6 +1193,7 @@ end:
   hk_chunk_emit_opcode(chunk, HK_OP_CLOSURE);
   hk_chunk_emit_byte(chunk, index);
 }
+*/
 
 static void compile_del_statement(compiler_t *comp)
 {
@@ -1190,10 +1209,11 @@ static void compile_del_statement(compiler_t *comp)
   if (!var.is_mutable)
     syntax_error(fn->name, scan->file->chars, tk.line, tk.col,
       "cannot delete element from immutable variable `%.*s`", tk.length, tk.start);
-  hk_chunk_emit_opcode(chunk, HK_OP_LOAD);
+  // TODO
+  hk_chunk_emit_opcode(chunk, var.is_local ? HK_OP_GET_LOCAL : HK_OP_GET_NONLOCAL);
   hk_chunk_emit_byte(chunk, var.index);
   compile_delete(comp, true);
-  hk_chunk_emit_opcode(chunk, HK_OP_STORE);
+  hk_chunk_emit_opcode(chunk, var.is_local ? HK_OP_SET_LOCAL : HK_OP_SET_NONLOCAL);
   hk_chunk_emit_byte(chunk, var.index);
 }
 
@@ -1859,16 +1879,22 @@ static void compile_prim_expression(compiler_t *comp)
     compile_struct_declaration(comp, true);
     return;
   }
-  if (match(scan, TOKEN_PIPE))
+
+  // TODO
+  if (match(scan, TOKEN_FN))
   {
     compile_anonymous_function(comp);
     return;
   }
+  // TODO
+  /*
   if (match(scan, TOKEN_PIPEPIPE))
   {
     compile_anonymous_function_without_params(comp);
     return;
   }
+  */
+
   if (match(scan, TOKEN_IF))
   {
     compile_if_expression(comp, false);
@@ -2136,7 +2162,7 @@ static variable_t compile_variable(compiler_t *comp, token_t *tk, bool emit)
   {
     if (!emit)
       return *var;
-    hk_chunk_emit_opcode(chunk, var->is_local ? HK_OP_LOAD : HK_OP_NONLOCAL);
+    hk_chunk_emit_opcode(chunk, var->is_local ? HK_OP_GET_LOCAL : HK_OP_GET_NONLOCAL);
     hk_chunk_emit_byte(chunk, var->index);
     return *var;
   }
@@ -2144,7 +2170,7 @@ static variable_t compile_variable(compiler_t *comp, token_t *tk, bool emit)
   if (var)
   {
     uint8_t index = add_nonlocal(comp, tk);
-    hk_chunk_emit_opcode(chunk, HK_OP_NONLOCAL);
+    hk_chunk_emit_opcode(chunk, HK_OP_GET_NONLOCAL);
     hk_chunk_emit_byte(chunk, index);
     return *var;
   }
@@ -2167,13 +2193,14 @@ static variable_t *compile_nonlocal(compiler_t *comp, token_t *tk)
   variable_t *var = lookup_variable(comp, tk);
   if (var)
   {
-    hk_opcode_t op = HK_OP_NONLOCAL;
+    hk_opcode_t op = HK_OP_GET_NONLOCAL;
     if (var->is_local)
     {
-      if (var->is_mutable)
-        syntax_error(fn->name, comp->scan->file->chars, tk->line, tk->col,
-          "cannot capture mutable variable `%.*s`", tk->length, tk->start);
-      op = HK_OP_LOAD;
+      // TODO
+      //if (var->is_mutable)
+      //  syntax_error(fn->name, comp->scan->file->chars, tk->line, tk->col,
+      //    "cannot capture mutable variable `%.*s`", tk->length, tk->start);
+      op = HK_OP_GET_LOCAL;
     }
     hk_chunk_emit_opcode(chunk, op);
     hk_chunk_emit_byte(chunk, var->index);
@@ -2183,7 +2210,7 @@ static variable_t *compile_nonlocal(compiler_t *comp, token_t *tk)
   if (var)
   {
     uint8_t index = add_nonlocal(comp, tk);
-    hk_chunk_emit_opcode(chunk, HK_OP_NONLOCAL);
+    hk_chunk_emit_opcode(chunk, HK_OP_GET_NONLOCAL);
     hk_chunk_emit_byte(chunk, index);
     return var;
   }

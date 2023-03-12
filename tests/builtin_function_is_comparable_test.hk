@@ -5,4 +5,4 @@ println(is_comparable(1));
 println(is_comparable(1 .. 10));
 println(is_comparable("foo"));
 println(is_comparable([1,2,3]));
-println(is_comparable(|| {}));
+println(is_comparable(fn () {}));

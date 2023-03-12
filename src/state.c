@@ -1474,7 +1474,7 @@ static inline int32_t call_function(hk_state_t *state, hk_value_t *locals, hk_cl
         hk_value_incr_ref(val);
       }
       break;
-    case HK_OP_NONLOCAL:
+    case HK_OP_GET_NONLOCAL:
       {
         hk_value_t val = nonlocals[read_byte(&pc)];
         if (push(state, val) == HK_STATUS_ERROR)
@@ -1482,7 +1482,16 @@ static inline int32_t call_function(hk_state_t *state, hk_value_t *locals, hk_cl
         hk_value_incr_ref(val);
       }
       break;
-    case HK_OP_LOAD:
+    case HK_OP_SET_NONLOCAL:
+      {
+        int32_t index = read_byte(&pc);
+        hk_value_t val = slots[state->stack_top];
+        --state->stack_top;
+        hk_value_release(nonlocals[index]);
+        nonlocals[index] = val;
+      }
+      break;
+    case HK_OP_GET_LOCAL:
       {
         hk_value_t val = locals[read_byte(&pc)];
         if (push(state, val) == HK_STATUS_ERROR)
@@ -1490,7 +1499,7 @@ static inline int32_t call_function(hk_state_t *state, hk_value_t *locals, hk_cl
         hk_value_incr_ref(val);
       }
       break;
-    case HK_OP_STORE:
+    case HK_OP_SET_LOCAL:
       {
         int32_t index = read_byte(&pc);
         hk_value_t val = slots[state->stack_top];
